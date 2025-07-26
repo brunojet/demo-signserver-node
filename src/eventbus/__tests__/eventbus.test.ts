@@ -1,29 +1,66 @@
 import { EventBus } from '../eventbus';
 
-describe('EventBus', () => {
-  it('permite subscrever e publicar eventos', async () => {
+describe('EventBus + WorkerPool', () => {
+  it('executa handlers concorrentes via WorkerPool ao publicar evento', async () => {
     const bus = new EventBus();
-    const handler = jest.fn();
-    bus.subscribe('test', handler);
-    await bus.publish('test', { msg: 'hello' });
-    expect(handler).toHaveBeenCalledWith({ msg: 'hello' });
+    const results: any[] = [];
+    bus.register('test', 'okHandler', async (event) => {
+      await new Promise(r => setTimeout(r, 20));
+      results.push(event + '-ok');
+    }, 2);
+    bus.register('test', 'failHandler', async (event) => {
+      throw new Error('fail');
+    }, 2);
+    await bus.publish('test', 'evt1');
+    await new Promise(r => setTimeout(r, 50));
+    expect(results).toContain('evt1-ok');
   });
 
-  it('permite remover handlers', async () => {
+  it('remove handler registrado com unregister', async () => {
     const bus = new EventBus();
-    const handler = jest.fn();
-    bus.subscribe('test', handler);
-    bus.unsubscribe('test', handler);
-    await bus.publish('test', { msg: 'bye' });
-    expect(handler).not.toHaveBeenCalled();
+    const results: any[] = [];
+    bus.register('test', 'okHandler', async (event) => {
+      results.push(event);
+    }, 1);
+    bus.unregister('test', 'okHandler');
+    await bus.publish('test', 'evt2');
+    await new Promise(r => setTimeout(r, 20));
+    expect(results).not.toContain('evt2');
   });
 
-  it('limpa todos os handlers', async () => {
+  it('limpa todos os handlers com clear', async () => {
     const bus = new EventBus();
-    const handler = jest.fn();
-    bus.subscribe('test', handler);
+    const results: any[] = [];
+    bus.register('test', 'okHandler', async (event) => {
+      results.push(event);
+    }, 1);
     bus.clear();
-    await bus.publish('test', { msg: 'clear' });
-    expect(handler).not.toHaveBeenCalled();
+    await bus.publish('test', 'evt3');
+    await new Promise(r => setTimeout(r, 20));
+    expect(results).not.toContain('evt3');
+  });
+
+  it('register adiciona handler para eventType já existente', async () => {
+    const bus = new EventBus();
+    const results: any[] = [];
+    bus.register('test', 'handler1', async (event) => { results.push('h1'); }, 1);
+    bus.register('test', 'handler2', async (event) => { results.push('h2'); }, 1);
+    await bus.publish('test', 'evt');
+    await new Promise(r => setTimeout(r, 20));
+    expect(results).toContain('h1');
+    expect(results).toContain('h2');
+  });
+
+  it('unregister não faz nada se eventType não existe', () => {
+    const bus = new EventBus();
+    // Não deve lançar erro
+    expect(() => bus.unregister('inexistente', 'handler')).not.toThrow();
+  });
+
+  it('register cria novo eventType se não existe', async () => {
+    const bus = new EventBus();
+    expect(bus['handlers'].has('novo')).toBe(false);
+    bus.register('novo', 'handler', async () => {}, 1);
+    expect(bus['handlers'].has('novo')).toBe(true);
   });
 });

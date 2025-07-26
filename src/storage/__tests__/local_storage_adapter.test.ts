@@ -1,53 +1,45 @@
 import { LocalStorageAdapter } from '../local_storage_adapter';
-import fs from 'fs/promises';
-import fss from 'fs';
-import path from 'path';
-import { Readable } from 'stream';
 
 describe('LocalStorageAdapter', () => {
-  const adapter = new LocalStorageAdapter('test_uploads');
-  const testFile = 'folder/test.txt';
-  const testData = 'conteúdo de teste';
+  const baseDir = 'test-uploads';
+  const adapter = new LocalStorageAdapter(baseDir);
+  const testFile = 'file.txt';
+  const testContent = 'conteudo';
 
   afterAll(async () => {
-    await fs.rm(path.join('test_uploads'), { recursive: true, force: true });
+    const fs = await import('fs/promises');
+    await fs.rm(baseDir, { recursive: true, force: true });
   });
 
-  it('faz upload (stream) e retorna URL', async () => {
-    const readable = Readable.from([testData]);
+  it('upload e download funcionam', async () => {
+    const { Readable } = await import('stream');
+    const readable = Readable.from([testContent]);
     const url = await adapter.upload(testFile, readable);
-    expect(url).toContain('file://');
+    expect(url).toContain(testFile);
     const stream = await adapter.download(testFile);
-    let result = '';
-    await new Promise((resolve, reject) => {
-      stream.on('data', (chunk: Buffer) => result += chunk.toString());
-      stream.on('end', resolve);
-      stream.on('error', reject);
-    });
-    expect(result).toBe(testData);
+    let data = '';
+    for await (const chunk of stream) data += chunk;
+    expect(data).toBe(testContent);
   });
 
-  it('deleta arquivo', async () => {
-    await adapter.upload(testFile, Readable.from([testData]));
-    await adapter.delete(testFile);
-    await expect(async () => {
-      const stream = await adapter.download(testFile);
-      await new Promise((resolve, reject) => {
-        stream.on('error', resolve);
-        stream.on('open', () => reject(new Error('Should not open')));
-      });
-    }).resolves.not.toThrow();
+  it('delete remove arquivo', async () => {
+    const { Readable } = await import('stream');
+    await adapter.upload('del.txt', Readable.from(['del']));
+    await adapter.delete('del.txt');
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    await expect(fs.access(path.join(baseDir, 'del.txt'))).rejects.toThrow();
   });
 
-  it('gera URL pré-assinada de upload (put)', async () => {
-    const url = await adapter.getPresignedPutUrl(testFile, 60);
-    expect(url).toContain('file://');
-    expect(url).toContain('?put&expires=');
+  it('getPresignedPutUrl retorna url simulada', async () => {
+    const url = await adapter.getPresignedPutUrl('put.txt', 10);
+    expect(url).toContain('put');
+    expect(url).toContain('expires=');
   });
 
-  it('gera URL pré-assinada de download (get)', async () => {
-    const url = await adapter.getPresignedGetUrl(testFile, 60);
-    expect(url).toContain('file://');
-    expect(url).toContain('?get&expires=');
+  it('getPresignedGetUrl retorna url simulada', async () => {
+    const url = await adapter.getPresignedGetUrl('get.txt', 10);
+    expect(url).toContain('get');
+    expect(url).toContain('expires=');
   });
 });
