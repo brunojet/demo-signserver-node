@@ -1,5 +1,6 @@
 // WorkerPool genérico para processamento paralelo de tarefas
 import { EventBus } from '../eventbus/eventbus';
+import { logger } from '../observability/observability';
 
 export type Task<T = any> = () => Promise<T>;
 export type TaskResult<T = any> = { task: Task<T>; result: T | Error };
@@ -18,6 +19,7 @@ export class WorkerPool {
 
   addTask<T>(task: Task<T>) {
     this.queue.push(task);
+    logger.debug('WorkerPool: tarefa adicionada', { queueLength: this.queue.length });
     this.runNext();
   }
 
@@ -26,10 +28,13 @@ export class WorkerPool {
     const task = this.queue.shift();
     if (!task) return;
     this.running++;
+    logger.debug('WorkerPool: executando tarefa', { running: this.running, queueLength: this.queue.length });
     try {
       const result = await task();
+      logger.info('WorkerPool: tarefa concluída', { result });
       this.eventBus.publish('workerpool:task:done', { task, result });
     } catch (error) {
+      logger.error('WorkerPool: erro na tarefa', { error });
       this.eventBus.publish('workerpool:task:error', { task, result: error });
     } finally {
       this.running--;

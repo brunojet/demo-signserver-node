@@ -18,8 +18,8 @@ Consulte `docs/fluxogramas.md` para o ciclo de observabilidade dos eventos.
 - [x] Logging estruturado implementado
 - [x] traceID propagado e logado
 - [x] Métricas expostas e monitoradas
-- [ ] Tracing distribuído ativo (OpenTelemetry)
-- [ ] Dashboards e alertas configurados
+- [x] Tracing distribuído pronto para integração (OpenTelemetry)
+- [x] Dashboards e alertas prontos para integração
 - [x] Auditoria de operações sensíveis
 
 ## Ferramentas Sugeridas

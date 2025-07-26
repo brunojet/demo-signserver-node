@@ -1,14 +1,18 @@
-import { LocalStorageAdapter } from '../local_storage_adapter';
+import { LocalStorageAdapter as StorageService } from '../local_storage_adapter';
 
 describe('LocalStorageAdapter', () => {
   const baseDir = 'test-uploads';
-  const adapter = new LocalStorageAdapter(baseDir);
+  const adapter = new StorageService(baseDir);
   const testFile = 'file.txt';
   const testContent = 'conteudo';
 
   afterAll(async () => {
     const fs = await import('fs/promises');
-    await fs.rm(baseDir, { recursive: true, force: true });
+    try {
+      await fs.rm(baseDir, { recursive: true, force: true });
+    } catch (err) {
+      // ignora erro se diretório já foi removido
+    }
   });
 
   it('upload e download funcionam', async () => {
@@ -70,7 +74,7 @@ describe('LocalStorageAdapter', () => {
   });
 
   it('usa valor padrão de baseDir se não informado', () => {
-    const adapterDefault = new LocalStorageAdapter();
+    const adapterDefault = new StorageService();
     expect((adapterDefault as any).baseDir).toBe('uploads');
   });
 });
