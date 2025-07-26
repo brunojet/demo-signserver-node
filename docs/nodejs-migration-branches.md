@@ -22,11 +22,11 @@ Este documento lista sugestões de branches para organizar a recriação do demo
 6. **node-workerpool** ✅ (concluído)
    - Worker pool para paralelismo e processamento assíncrono dos eventos. 100% coberto por testes unitários, todos branches e cenários validados.
 
-7. **node-signing-service**
-   - Serviço de assinatura: integração com assinadores externos (mock/real), adapters POS.
+7. **node-observability** (próximo)
+   - Logs estruturados, métricas, tracing (OpenTelemetry, Winston, etc). Integração direta com EventBus, WorkerPool e Storage para monitoramento do chassis.
 
-8. **node-observability**
-   - Logs estruturados, métricas, tracing (OpenTelemetry, Winston, etc).
+8. **node-signing-service**
+   - Serviço de assinatura: integração com assinadores externos (mock/real), adapters POS.
 
 9. **node-notification-service**
    - Serviço de notificação (webhook, status, e-mail, etc).
