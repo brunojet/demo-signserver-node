@@ -1,4 +1,4 @@
-# Observabilidade no Projeto demo-signserver
+s# Observabilidade no Projeto demo-signserver
 
 ## Visão Geral
 O sistema implementa observabilidade ponta-a-ponta, com logs estruturados, métricas, tracing distribuído e rastreio de eventos via traceID.

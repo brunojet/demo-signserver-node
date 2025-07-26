@@ -1,4 +1,4 @@
-# Documento Técnico de Observabilidade
+s# Documento Técnico de Observabilidade
 
 ## Visão Geral
 Este documento detalha a estrutura técnica que será implementada para garantir observabilidade no projeto demo-signserver, mesmo sem ferramentas externas instaladas inicialmente. O objetivo é garantir que, ao adicionar ferramentas como Prometheus, Grafana, Jaeger ou stacks de logging, a integração seja simples e sem refatorações profundas.
