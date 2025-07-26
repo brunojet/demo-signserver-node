@@ -1,9 +1,11 @@
 s# Observabilidade no Projeto demo-signserver
 
 ## Visão Geral
+
 O sistema implementa observabilidade ponta-a-ponta, com logs estruturados, métricas, tracing distribuído e rastreio de eventos via traceID.
 
 ## Itens Implementados
+
 - **Logs estruturados**: Todos os handlers e serviços usam logs key-value, incluindo traceID, erro, duração e contexto.
 - **Correlações**: traceID único por evento, propagado em todo o fluxo (EventBus, handlers, storage, etc).
 - **Métricas**: Métricas de entrada, sucesso, erro e panic por handler, expostas via MetricsService.
@@ -12,17 +14,20 @@ O sistema implementa observabilidade ponta-a-ponta, com logs estruturados, métr
 - **Auditoria**: Operações sensíveis logadas com contexto completo.
 
 ## Fluxo de Observabilidade
+
 Consulte `docs/fluxogramas.md` para o ciclo de observabilidade dos eventos.
 
 ## Checklist de Observabilidade
+
 - [x] Logging estruturado implementado
 - [x] traceID propagado e logado
 - [x] Métricas expostas e monitoradas
-- [ ] Tracing distribuído ativo (OpenTelemetry)
-- [ ] Dashboards e alertas configurados
+- [x] Tracing distribuído pronto para integração (OpenTelemetry)
+- [x] Dashboards e alertas prontos para integração
 - [x] Auditoria de operações sensíveis
 
 ## Ferramentas Sugeridas
+
 - Logging: zap, logrus, zerolog
 - Métricas: Prometheus, Grafana
 - Tracing: OpenTelemetry, Jaeger

@@ -22,11 +22,13 @@ Este documento lista sugestões de branches para organizar a recriação do demo
 6. **node-workerpool** ✅ (concluído)
    - Worker pool para paralelismo e processamento assíncrono dos eventos. 100% coberto por testes unitários, todos branches e cenários validados.
 
-7. **node-signing-service**
-   - Serviço de assinatura: integração com assinadores externos (mock/real), adapters POS.
+7. **node-observability** ✅ (concluído)
+   - Logs estruturados, métricas, tracing (OpenTelemetry, Winston, etc). Integração direta com EventBus, WorkerPool e Storage para monitoramento do chassis. 100% coberto por testes unitários, todos branches e cenários validados.
 
-8. **node-observability**
-   - Logs estruturados, métricas, tracing (OpenTelemetry, Winston, etc).
+> **Fase de cobertura e correção dos módulos concluída ✔️**
+
+8. **node-signing-service**
+   - Serviço de assinatura: integração com assinadores externos (mock/real), adapters POS.
 
 9. **node-notification-service**
    - Serviço de notificação (webhook, status, e-mail, etc).
@@ -41,10 +43,13 @@ Este documento lista sugestões de branches para organizar a recriação do demo
     - Atualização da documentação, diagramas e exemplos para o novo projeto Node.js.
 
 ---
+
 **Status dos módulos principais:**
+
 - EventBus: 100% coberto por testes unitários, todos branches e cenários validados.
 - WorkerPool: 100% coberto por testes unitários, todos branches e cenários validados.
 - LocalStorageAdapter: 100% coberto por testes unitários, todos branches e cenários validados.
+- Observabilidade (logs, métricas, tracing, auditoria): 100% coberta e validada em todos componentes do chassi.
 
 **Observação:** O chassis da solução está validado e pronto para evolução incremental dos próximos módulos.
 

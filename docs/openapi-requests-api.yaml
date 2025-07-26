@@ -188,7 +188,7 @@ components:
         signer:
           type: string
           description: Fabricante do dispositivo
-          enum: ["positivo", "gertec"]
+          enum: ['positivo', 'gertec']
         profile_id:
           type: string
         description:

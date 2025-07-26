@@ -20,18 +20,33 @@ export class LocalStorageAdapter implements StorageAdapter {
       data.pipe(writeStream);
       writeStream.on('finish', () => resolve(undefined));
       writeStream.on('error', reject);
+      data.on('error', reject);
     });
     return `file://${fullPath}`;
   }
 
   async download(filePath: string): Promise<Readable> {
     const fullPath = path.join(this.baseDir, filePath);
+    // Verifica se o arquivo existe antes de criar o stream
+    try {
+      await fs.access(fullPath, fss.constants.F_OK);
+    } catch (err) {
+      throw new Error(`Arquivo não encontrado: ${filePath}`);
+    }
     return fss.createReadStream(fullPath);
   }
 
   async delete(filePath: string): Promise<void> {
     const fullPath = path.join(this.baseDir, filePath);
-    await fs.unlink(fullPath);
+    try {
+      await fs.unlink(fullPath);
+    } catch (err: any) {
+      let exception = err;
+      if (err.code === 'ENOENT') {
+        exception = new Error(`Arquivo não encontrado para deletar: ${filePath}`);
+      }
+      throw exception;
+    }
   }
 
   async getPresignedPutUrl(filePath: string, expiresIn: number = 3600): Promise<string> {

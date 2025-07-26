@@ -2,7 +2,6 @@
 
 Este documento descreve a arquitetura do projeto, fluxos principais e integrações.
 
-
 ## Diagrama de Arquitetura
 
 ```mermaid
@@ -22,7 +21,6 @@ graph TD
         WorkerPool --> S3
     end
 ```
-
 
 ## Diagrama de Sequência do Fluxo
 

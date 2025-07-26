@@ -1,14 +1,18 @@
-import { LocalStorageAdapter } from '../local_storage_adapter';
+import { LocalStorageAdapter as StorageService } from '../local_storage_adapter';
 
 describe('LocalStorageAdapter', () => {
   const baseDir = 'test-uploads';
-  const adapter = new LocalStorageAdapter(baseDir);
+  const adapter = new StorageService(baseDir);
   const testFile = 'file.txt';
   const testContent = 'conteudo';
 
   afterAll(async () => {
     const fs = await import('fs/promises');
-    await fs.rm(baseDir, { recursive: true, force: true });
+    try {
+      await fs.rm(baseDir, { recursive: true, force: true });
+    } catch (err) {
+      // ignora erro se diretório já foi removido
+    }
   });
 
   it('upload e download funcionam', async () => {
@@ -37,6 +41,44 @@ describe('LocalStorageAdapter', () => {
     expect(url).toContain('expires=');
   });
 
+  it('delete relança erro desconhecido', async () => {
+    jest.resetModules();
+    jest.doMock('fs/promises', () => ({
+      unlink: () => {
+        const err = new Error('erro desconhecido');
+        (err as any).code = 'EACCES';
+        throw err;
+      },
+      // outros métodos se necessário
+    }));
+    const { LocalStorageAdapter } = await import('../local_storage_adapter');
+    const adapterErro = new LocalStorageAdapter(baseDir);
+    await expect(adapterErro.delete('qualquer.txt')).rejects.toThrow();
+    jest.dontMock('fs/promises');
+  });
+
+  it('delete relança erro desconhecido (mock do módulo)', async () => {
+    jest.resetModules();
+    jest.doMock('fs/promises', () => ({
+      unlink: () => {
+        const err = new Error('erro desconhecido');
+        (err as any).code = 'EACCES';
+        throw err;
+      },
+      // outros métodos se necessário
+    }));
+    const { LocalStorageAdapter } = await import('../local_storage_adapter');
+    const adapterErro = new LocalStorageAdapter(baseDir);
+    await expect(adapterErro.delete('qualquer.txt')).rejects.toThrow('erro desconhecido');
+    jest.dontMock('fs/promises');
+  });
+
+  it('delete lança erro customizado para ENOENT', async () => {
+    await expect(adapter.delete('arquivo-inexistente.txt')).rejects.toThrow(
+      'Arquivo não encontrado para deletar'
+    );
+  });
+
   it('getPresignedGetUrl retorna url simulada', async () => {
     const url = await adapter.getPresignedGetUrl('get.txt', 10);
     expect(url).toContain('get');
@@ -45,7 +87,11 @@ describe('LocalStorageAdapter', () => {
 
   it('upload lança erro se stream falhar', async () => {
     const { Readable } = await import('stream');
-    const broken = new Readable({ read() { this.destroy(new Error('fail')); } });
+    const broken = new Readable({
+      read() {
+        this.destroy(new Error('fail'));
+      },
+    });
     await expect(adapter.upload('fail.txt', broken)).rejects.toThrow('fail');
   });
 
@@ -53,9 +99,7 @@ describe('LocalStorageAdapter', () => {
     await expect(adapter.download('inexistente.txt')).rejects.toThrow();
   });
 
-  it('delete lança erro se arquivo não existe', async () => {
-    await expect(adapter.delete('inexistente.txt')).rejects.toThrow();
-  });
+  // ...existing code...
 
   it('getPresignedPutUrl funciona sem expiresIn', async () => {
     const url = await adapter.getPresignedPutUrl('put2.txt');
@@ -70,7 +114,7 @@ describe('LocalStorageAdapter', () => {
   });
 
   it('usa valor padrão de baseDir se não informado', () => {
-    const adapterDefault = new LocalStorageAdapter();
+    const adapterDefault = new StorageService();
     expect((adapterDefault as any).baseDir).toBe('uploads');
   });
 });
