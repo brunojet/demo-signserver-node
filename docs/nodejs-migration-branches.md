@@ -19,8 +19,8 @@ Este documento lista sugestões de branches para organizar a recriação do demo
 5. **node-eventbus** ✅ (concluído)
    - Implementação do EventBus interno (EventEmitter, mitt, ou custom), com integração para observabilidade. EventBus genérico implementado, testado e documentado. Pronto para integração com WorkerPool e demais módulos.
 
-6. **node-workerpool**
-   - Worker pool para paralelismo e processamento assíncrono dos eventos.
+6. **node-workerpool** ✅ (concluído)
+   - Worker pool para paralelismo e processamento assíncrono dos eventos. 100% coberto por testes unitários, todos branches e cenários validados.
 
 7. **node-signing-service**
    - Serviço de assinatura: integração com assinadores externos (mock/real), adapters POS.
@@ -41,4 +41,11 @@ Este documento lista sugestões de branches para organizar a recriação do demo
     - Atualização da documentação, diagramas e exemplos para o novo projeto Node.js.
 
 ---
+**Status dos módulos principais:**
+- EventBus: 100% coberto por testes unitários, todos branches e cenários validados.
+- WorkerPool: 100% coberto por testes unitários, todos branches e cenários validados.
+- LocalStorageAdapter: 100% coberto por testes unitários, todos branches e cenários validados.
+
+**Observação:** O chassis da solução está validado e pronto para evolução incremental dos próximos módulos.
+
 Essas branches podem ser criadas e trabalhadas de forma incremental, facilitando revisão, colaboração e entrega contínua.

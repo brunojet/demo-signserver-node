@@ -42,4 +42,35 @@ describe('LocalStorageAdapter', () => {
     expect(url).toContain('get');
     expect(url).toContain('expires=');
   });
+
+  it('upload lança erro se stream falhar', async () => {
+    const { Readable } = await import('stream');
+    const broken = new Readable({ read() { this.destroy(new Error('fail')); } });
+    await expect(adapter.upload('fail.txt', broken)).rejects.toThrow('fail');
+  });
+
+  it('download lança erro se arquivo não existe', async () => {
+    await expect(adapter.download('inexistente.txt')).rejects.toThrow();
+  });
+
+  it('delete lança erro se arquivo não existe', async () => {
+    await expect(adapter.delete('inexistente.txt')).rejects.toThrow();
+  });
+
+  it('getPresignedPutUrl funciona sem expiresIn', async () => {
+    const url = await adapter.getPresignedPutUrl('put2.txt');
+    expect(url).toContain('put2.txt');
+    expect(url).toContain('expires=');
+  });
+
+  it('getPresignedGetUrl funciona sem expiresIn', async () => {
+    const url = await adapter.getPresignedGetUrl('get2.txt');
+    expect(url).toContain('get2.txt');
+    expect(url).toContain('expires=');
+  });
+
+  it('usa valor padrão de baseDir se não informado', () => {
+    const adapterDefault = new LocalStorageAdapter();
+    expect((adapterDefault as any).baseDir).toBe('uploads');
+  });
 });
