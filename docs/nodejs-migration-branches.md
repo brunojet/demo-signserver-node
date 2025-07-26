@@ -7,13 +7,13 @@ Este documento lista sugestões de branches para organizar a recriação do demo
 1. **node-init-project** ✅ (concluído)
    - Inicialização do projeto Node.js (TypeScript, ESLint, Prettier, estrutura base).
 
-2. **node-api-base**
+2. **node-api-base** ✅ (concluído)
    - Implementação da API HTTP/gRPC base (Express, Fastify ou NestJS).
 
-3. **node-intent-service**
+3. **node-intent-service** ✅ (concluído)
    - Serviço de intent: criação, validação de perfis, geração de URL de upload.
 
-4. **node-storage-adapter**
+4. **node-storage-adapter** ✅ (concluído)
    - Adapter para integração com S3/local storage, abstração de upload/download.
 
 5. **node-eventbus**
