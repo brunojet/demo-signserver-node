@@ -16,8 +16,8 @@ Este documento lista sugestões de branches para organizar a recriação do demo
 4. **node-storage-adapter** ✅ (concluído)
    - Adapter para integração com S3/local storage, abstração de upload/download.
 
-5. **node-eventbus**
-   - Implementação do EventBus interno (EventEmitter, mitt, ou custom), com integração para observabilidade.
+5. **node-eventbus** ✅ (concluído)
+   - Implementação do EventBus interno (EventEmitter, mitt, ou custom), com integração para observabilidade. EventBus genérico implementado, testado e documentado. Pronto para integração com WorkerPool e demais módulos.
 
 6. **node-workerpool**
    - Worker pool para paralelismo e processamento assíncrono dos eventos.
