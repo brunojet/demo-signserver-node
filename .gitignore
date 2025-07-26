@@ -1,0 +1,25 @@
+# Node.js standard .gitignore
+node_modules/
+dist/
+.env
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+.DS_Store
+.idea/
+.vscode/
+*.tgz
+
+# Optional OS/IDE files
+Thumbs.db
+*.swp
+*.swo
+*.bak
+*.tmp
+*.orig
+
+# Build artifacts
+build/
+out/
