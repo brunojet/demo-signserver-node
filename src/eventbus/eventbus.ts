@@ -1,27 +1,43 @@
-// EventBus genérico para publicação e assinatura de eventos
+import { WorkerPool } from '../workerpool/workerpool';
+
 export type EventHandler<T = any> = (event: T) => void | Promise<void>;
+export type RegisteredHandler = {
+  handlerName: string;
+  pool: WorkerPool;
+  handler: EventHandler;
+};
 
 export class EventBus {
-  private handlers: Map<string, EventHandler[]> = new Map();
+  private handlers: Map<string, RegisteredHandler[]> = new Map();
 
-  subscribe<T = any>(eventType: string, handler: EventHandler<T>) {
+  /**
+   * Registra handler concorrente para evento
+   */
+  register<T = any>(eventType: string, handlerName: string, handler: EventHandler<T>, numWorkers = 4) {
     if (!this.handlers.has(eventType)) {
       this.handlers.set(eventType, []);
     }
-    this.handlers.get(eventType)!.push(handler);
+    const pool = new WorkerPool(this, { numWorkers });
+    this.handlers.get(eventType)!.push({ handlerName, pool, handler });
   }
 
+  /**
+   * Publica evento disparando handlers via WorkerPool
+   */
   async publish<T = any>(eventType: string, event: T): Promise<void> {
-    const handlers = this.handlers.get(eventType) || [];
-    for (const handler of handlers) {
-      await handler(event);
+    const registered = this.handlers.get(eventType) || [];
+    for (const { pool, handler } of registered) {
+      pool.addTask(() => Promise.resolve(handler(event)));
     }
   }
 
-  unsubscribe<T = any>(eventType: string, handler: EventHandler<T>) {
-    const handlers = this.handlers.get(eventType);
-    if (handlers) {
-      this.handlers.set(eventType, handlers.filter(h => h !== handler));
+  /**
+   * Remove handler registrado
+   */
+  unregister(eventType: string, handlerName: string) {
+    const arr = this.handlers.get(eventType);
+    if (arr) {
+      this.handlers.set(eventType, arr.filter(h => h.handlerName !== handlerName));
     }
   }
 
