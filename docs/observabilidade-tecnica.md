@@ -1,6 +1,7 @@
 s# Documento Técnico de Observabilidade
 
 ## Visão Geral
+
 Este documento detalha a estrutura técnica que será implementada para garantir observabilidade no projeto demo-signserver, mesmo sem ferramentas externas instaladas inicialmente. O objetivo é garantir que, ao adicionar ferramentas como Prometheus, Grafana, Jaeger ou stacks de logging, a integração seja simples e sem refatorações profundas.
 
 ---
@@ -8,15 +9,23 @@ Este documento detalha a estrutura técnica que será implementada para garantir
 ## 1. Logging Estruturado
 
 ### Objetivo
+
 Permitir logs legíveis por máquina e facilmente integráveis com sistemas de análise, mesmo que inicialmente apenas no console.
 
 ### Implementação
+
 - Criação de um pacote `logger` com uma interface Logger (Info, Warn, Error, WithFields).
 - Implementação inicial usando o log padrão do Go (`log.Printf`), mas formatando as mensagens em JSON.
 - Todos os handlers, serviços e middlewares devem usar o logger, nunca o log direto.
 - Exemplo de log:
   ```json
-  {"timestamp":"2025-07-02T12:00:00Z","level":"info","requestID":"abc-123","msg":"Request recebida","endpoint":"/requests"}
+  {
+    "timestamp": "2025-07-02T12:00:00Z",
+    "level": "info",
+    "requestID": "abc-123",
+    "msg": "Request recebida",
+    "endpoint": "/requests"
+  }
   ```
 - Facilidade para trocar a implementação para zap, logrus ou zerolog no futuro.
 
@@ -25,9 +34,11 @@ Permitir logs legíveis por máquina e facilmente integráveis com sistemas de a
 ## 2. Middleware de requestID
 
 ### Objetivo
+
 Gerar e propagar um identificador único de requisição para rastreabilidade ponta-a-ponta.
 
 ### Implementação
+
 - Middleware Gin que verifica se existe um header `X-Request-ID`. Se não existir, gera um UUID.
 - O requestID é adicionado ao contexto da request e aos logs.
 - O header `X-Request-ID` é devolvido em todas as respostas.
@@ -42,9 +53,11 @@ Gerar e propagar um identificador único de requisição para rastreabilidade po
 ## 3. Estrutura para Métricas
 
 ### Objetivo
+
 Permitir instrumentação de métricas de negócio e técnicas, mesmo que inicialmente só faça log.
 
 ### Implementação
+
 - Criação de um pacote `metrics` com funções para registrar contadores, histogramas, etc.
 - Implementação inicial apenas incrementando contadores em memória e logando eventos.
 - Endpoint `/metrics` já criado, retornando métricas dummy ou logs.
@@ -55,9 +68,11 @@ Permitir instrumentação de métricas de negócio e técnicas, mesmo que inicia
 ## 4. Estrutura para Tracing
 
 ### Objetivo
+
 Permitir rastreamento de chamadas entre handlers, serviços e dependências.
 
 ### Implementação
+
 - Criação de um pacote `tracing` com funções para iniciar/finalizar spans.
 - Inicialmente, apenas logar início/fim de spans com requestID e nome da operação.
 - Estrutura pronta para integrar OpenTelemetry/Jaeger.
@@ -67,9 +82,11 @@ Permitir rastreamento de chamadas entre handlers, serviços e dependências.
 ## 5. Auditoria
 
 ### Objetivo
+
 Registrar operações sensíveis para rastreabilidade e compliance.
 
 ### Implementação
+
 - Função utilitária para registrar logs de auditoria (ação, usuário, timestamp, payload).
 - Logs de auditoria separados por campo ou arquivo (pode ser só um campo extra no log padrão).
 
@@ -96,6 +113,7 @@ internal/
 ---
 
 ## Próximos Passos
+
 1. Implementar pacote logger estruturado.
 2. Adicionar middleware de requestID.
 3. Implementar pacotes de métricas e tracing (dummy).
@@ -107,6 +125,7 @@ internal/
 ## Diagramas de Observabilidade
 
 ### Diagrama de Arquitetura (Mermaid)
+
 ```mermaid
 flowchart TD
     subgraph API
@@ -141,6 +160,7 @@ flowchart TD
 ```
 
 ### Diagrama de Sequência (Mermaid)
+
 ```mermaid
 sequenceDiagram
     participant U as Usuário/API Client

@@ -3,6 +3,7 @@
 Módulo para processamento paralelo de tarefas assíncronas.
 
 ## Interface
+
 - `WorkerPool(eventBus, options)`: inicializa o pool com EventBus e número de workers.
 - `addTask(task)`: adiciona tarefa ao pool.
 - Eventos publicados no EventBus:
@@ -10,6 +11,7 @@ Módulo para processamento paralelo de tarefas assíncronas.
   - `workerpool:task:error` — erro na tarefa
 
 ## Exemplo de uso
+
 ```typescript
 import { WorkerPool } from './workerpool';
 import { EventBus } from '../eventbus/eventbus';

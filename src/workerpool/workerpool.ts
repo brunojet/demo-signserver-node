@@ -28,7 +28,10 @@ export class WorkerPool {
     const task = this.queue.shift();
     if (!task) return;
     this.running++;
-    logger.debug('WorkerPool: executando tarefa', { running: this.running, queueLength: this.queue.length });
+    logger.debug('WorkerPool: executando tarefa', {
+      running: this.running,
+      queueLength: this.queue.length,
+    });
     try {
       const result = await task();
       logger.info('WorkerPool: tarefa concluída', { result });

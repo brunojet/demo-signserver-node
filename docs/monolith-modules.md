@@ -1,10 +1,11 @@
-
 # Módulos e Fluxos — demo-signserver
 
 ## Visão Geral
+
 O demo-signserver implementa um fluxo de assinatura de APKs Android, com arquitetura modular, observável e altamente desacoplada. O núcleo da regra de negócio está em `internal/`, com orquestração baseada em eventos, handlers assíncronos e integração com serviços externos.
 
 ## Módulos de Negócio (internal/)
+
 - **request**: Recebe e valida pedidos de assinatura via API HTTP (handlers REST). Gera intents, valida perfis, retorna URL pré-assinada para upload. Inclui serviços e DTOs para requests e perfis.
 - **orquestrator**: Orquestra o fluxo de eventos do sistema. Consome eventos de upload (S3), publica eventos no EventBus, executa handlers para download, assinatura e upload. Centraliza o fluxo assíncrono e paralelismo via workerpool.
 - **ext_signer**: Integra com assinadores externos (ex: fabricantes POS), via adapters. Permite assinatura real ou mock de APKs.
@@ -36,6 +37,7 @@ O demo-signserver implementa um fluxo de assinatura de APKs Android, com arquite
 ```
 
 ## Fluxo de Trabalho (Regra de Negócio)
+
 1. Usuário faz POST para criar intent de assinatura (request handler)
 2. Serviço de request valida perfil, gera intent e retorna URL pré-assinada
 3. Usuário faz upload do APK para S3 usando a URL
@@ -47,6 +49,7 @@ O demo-signserver implementa um fluxo de assinatura de APKs Android, com arquite
 9. (Opcional) Notificação é enviada ao usuário
 
 ## Detalhes de Implementação
+
 - Adapters de storage (S3/local) e fila são injetados via factories/configuração
 - EventBus centraliza eventos assíncronos, com observabilidade automática, traceID e integração com workerpool
 - Workerpool genérico para paralelismo seguro, métricas e exportação periódica
@@ -55,4 +58,5 @@ O demo-signserver implementa um fluxo de assinatura de APKs Android, com arquite
 - Observabilidade: logs estruturados, tracing, métricas e auditoria em todos os handlers e eventos
 
 ## Referência
+
 Consulte `docs/fluxogramas.md` e `docs/arquitetura.md` para diagramas e fluxos detalhados.

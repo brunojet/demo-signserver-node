@@ -14,7 +14,12 @@ export class EventBus {
   /**
    * Registra handler concorrente para evento
    */
-  register<T = any>(eventType: string, handlerName: string, handler: EventHandler<T>, numWorkers = 4) {
+  register<T = any>(
+    eventType: string,
+    handlerName: string,
+    handler: EventHandler<T>,
+    numWorkers = 4
+  ) {
     if (!this.handlers.has(eventType)) {
       this.handlers.set(eventType, []);
     }
@@ -40,7 +45,10 @@ export class EventBus {
   unregister(eventType: string, handlerName: string) {
     const arr = this.handlers.get(eventType);
     if (arr) {
-      this.handlers.set(eventType, arr.filter(h => h.handlerName !== handlerName));
+      this.handlers.set(
+        eventType,
+        arr.filter((h) => h.handlerName !== handlerName)
+      );
       logger.info('EventBus: handler removido', { eventType, handlerName });
     }
   }

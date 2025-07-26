@@ -41,10 +41,11 @@ export class LocalStorageAdapter implements StorageAdapter {
     try {
       await fs.unlink(fullPath);
     } catch (err: any) {
+      let exception = err;
       if (err.code === 'ENOENT') {
-        throw new Error(`Arquivo não encontrado para deletar: ${filePath}`);
+        exception = new Error(`Arquivo não encontrado para deletar: ${filePath}`);
       }
-      throw err;
+      throw exception;
     }
   }
 
