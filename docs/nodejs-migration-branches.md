@@ -4,7 +4,7 @@ Este documento lista sugestões de branches para organizar a recriação do demo
 
 ## Branches Sugeridas
 
-1. **node-init-project**
+1. **node-init-project** ✅ (concluído)
    - Inicialização do projeto Node.js (TypeScript, ESLint, Prettier, estrutura base).
 
 2. **node-api-base**

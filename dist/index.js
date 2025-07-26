@@ -1,2 +1,3 @@
 "use strict";
-console.log('Hello World from demo-signserver Node.js!');
+Object.defineProperty(exports, "__esModule", { value: true });
+require("./api");
