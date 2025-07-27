@@ -8,4 +8,8 @@ export default {
     '^.+\.ts$': 'ts-jest',
   },
   collectCoverage: true,
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/'
+  ],
 };
