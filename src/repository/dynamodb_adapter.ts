@@ -3,9 +3,11 @@ import {
   DynamoDBClient,
   GetItemCommand,
   PutItemCommand,
+  UpdateItemCommand,
   DeleteItemCommand,
   ScanCommand,
 } from '@aws-sdk/client-dynamodb';
+import { buildUpdateExpression, buildFilterExpression } from './dynamodb_utils';
 import { getDynamoClient } from './dynamodb_client';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -43,13 +45,33 @@ export class DynamoDBAdapter<T> implements RepositoryAdapter<T> {
   }
 
   async update(id: string, updates: Partial<T>): Promise<T> {
-    const current = await this.findById(id);
-    if (!current) {
-      throw new Error(`Entity with id ${id} not found for update.`);
+      const updateExpr = buildUpdateExpression(updates);
+    // Add condition expression directly here to ensure PK exists
+    const conditionExpr = {
+      ConditionExpression: 'attribute_exists(PK)'
+    };
+    try {
+      const response = await this.client.send(new UpdateItemCommand({
+        TableName: this.tableName,
+        Key: { PK: { S: id } },
+        ...updateExpr,
+        ...conditionExpr,
+        ReturnValues: 'ALL_NEW'
+      }));
+        !response.Attributes ||
+        typeof response.Attributes !== 'object' ||
+        response.Attributes === null ||
+        (Object.keys(response.Attributes).length === 0)
+      ) {
+        throw new Error(`Entity with id ${id} not found after update.`);
+      }
+      return this.fromDynamoItem(response.Attributes as Record<string, any>);
+    } catch (err: any) {
+      if (err.name === 'ConditionalCheckFailedException') {
+        throw new Error(`Entity with id ${id} not found after update.`);
+      }
+      throw err;
     }
-    const entity = { ...current, ...updates, id };
-    await this.create(entity as T);
-    return entity as T;
   }
 
   async delete(id: string): Promise<void> {
@@ -59,36 +81,22 @@ export class DynamoDBAdapter<T> implements RepositoryAdapter<T> {
   }
 
   async findByField(field: string, value: any): Promise<T[]> {
+    const filterExpr = buildFilterExpression({ [field]: value });
     const result = await this.client.send(
       new ScanCommand({
         TableName: this.tableName,
-        FilterExpression: `#field = :value`,
-        ExpressionAttributeNames: { '#field': field },
-        ExpressionAttributeValues: { ':value': { S: value } },
+        ...filterExpr,
       })
     );
     return (result.Items || []).map((item: Record<string, any>) => this.fromDynamoItem(item));
   }
 
   async findWhere(conditions: Record<string, any>): Promise<T[]> {
-    const names: Record<string, string> = {};
-    const values: Record<string, any> = {};
-    const exprs: string[] = [];
-    Object.entries(conditions).forEach(([k, v], i) => {
-      names[`#${k}`] = k;
-      if (typeof v === 'number') {
-        values[`:v${i}`] = { N: v.toString() };
-      } else {
-        values[`:v${i}`] = { S: v };
-      }
-      exprs.push(`#${k} = :v${i}`);
-    });
+    const filterExpr = buildFilterExpression(conditions);
     const result = await this.client.send(
       new ScanCommand({
         TableName: this.tableName,
-        FilterExpression: exprs.join(' AND '),
-        ExpressionAttributeNames: names,
-        ExpressionAttributeValues: values,
+        ...filterExpr,
       })
     );
     return (result.Items || []).map((item: Record<string, any>) => this.fromDynamoItem(item));

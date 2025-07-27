@@ -27,6 +27,9 @@ function toDynamoItem(entity: TestEntity): Record<string, any> {
 }
 
 function fromDynamoItem(item: Record<string, any>): TestEntity {
+  if (!item || !item.PK || !item.name || !item.value) {
+    throw new Error('Item inválido para conversão em TestEntity');
+  }
   return {
     id: item.PK.S,
     name: item.name.S,
@@ -116,8 +119,9 @@ describe('DynamoDBAdapter', () => {
     const result = await adapter.findById(entity.id);
     expect(result).toBeNull();
   });
-
   it('update deve lançar erro se entidade não existir', async () => {
-    await expect(adapter.update('naoexiste', { name: 'fail' })).rejects.toThrow('Entity with id naoexiste not found for update.');
+    await expect(adapter.update('nao-existe', { name: 'fail' }))
+      .rejects
+      .toThrow('Entity with id nao-existe not found after update.');
   });
 });
