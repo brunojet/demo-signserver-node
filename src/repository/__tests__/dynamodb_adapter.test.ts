@@ -116,4 +116,8 @@ describe('DynamoDBAdapter', () => {
     const result = await adapter.findById(entity.id);
     expect(result).toBeNull();
   });
+
+  it('update deve lançar erro se entidade não existir', async () => {
+    await expect(adapter.update('naoexiste', { name: 'fail' })).rejects.toThrow('Entity with id naoexiste not found for update.');
+  });
 });

@@ -44,7 +44,10 @@ export class DynamoDBAdapter<T> implements RepositoryAdapter<T> {
 
   async update(id: string, updates: Partial<T>): Promise<T> {
     const current = await this.findById(id);
-    const entity = { ...(current || {}), ...updates, id };
+    if (!current) {
+      throw new Error(`Entity with id ${id} not found for update.`);
+    }
+    const entity = { ...current, ...updates, id };
     await this.create(entity as T);
     return entity as T;
   }

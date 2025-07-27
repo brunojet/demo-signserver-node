@@ -1,88 +1,78 @@
 
+import { BaseModel } from './base_model';
+import { toSnake, fromSnake as fromSnakeUtil } from './snake_utils';
+
 // Model (Domain) para Request seguindo design Node.js
+
+export class FileInfo {
+  public storage!: string;
+  public filePath!: string;
+  public size!: number;
+  public contentType!: string;
+}
+
+export class HistoryEntry {
+  public timestamp!: Date;
+  public status!: RequestStatus;
+  public error?: {
+    errorLocation: string;
+    errorMessage: string;
+  };
+}
 
 export enum RequestStatus {
   CREATED = "created",
-  UPLOADED = "uploaded",
+  RECEIVED = "received",
   SIGNING = "signing",
   SIGNED = "signed",
-  SIGNED_AVAILABLE = "signed_available",
-  DOWNLOAD_REQUESTED = "download_requested",
-  SIGNING_FAILED = "signing_failed",
+  FAILED = "failed",
 }
 
-export class Request {
-  public readonly id: string;
-  public readonly profileId: string;
-  public status: RequestStatus;
-  public unsignedFile: {
-    originalName: string;
-    s3Key: string;
-    size: number;
-    contentType: string;
-  };
-  public signedFile?: {
-    s3Key: string;
-    size: number;
-    contentType: string;
-    signedAt: Date;
-  };
+export class Request extends BaseModel {
+  public userTokenId?: string;
+  public profileId?: string;
+  public companyId?: string;
+  public status?: RequestStatus;
+  public history?: HistoryEntry[];
+  public unsignedFile?: FileInfo;
+  public signedFile?: FileInfo;
   public webhookUrl?: string;
-  public history: {
-    timestamp: Date;
-    status: RequestStatus;
-    error?: {
-      location: string;
-      message: string;
-    };
-  }[];
-  public company: string;
-  public requestedBy: string;
-  public processedBy?: string;
-  public readonly createdAt: Date;
-  public updatedAt: Date;
 
-  constructor(params: {
-    id: string;
-    profileId: string;
-    status: RequestStatus;
-    unsignedFile: { originalName: string; s3Key: string; size: number; contentType: string };
-    signedFile?: { s3Key: string; size: number; contentType: string; signedAt: Date };
-    webhookUrl?: string;
-    history: { timestamp: Date; status: RequestStatus; error?: { location: string; message: string } }[];
-    company: string;
-    requestedBy: string;
-    processedBy?: string;
-    createdAt?: Date;
-    updatedAt?: Date;
-  }) {
-    this.id = params.id;
-    this.profileId = params.profileId;
-    this.status = params.status;
-    this.unsignedFile = params.unsignedFile;
-    this.signedFile = params.signedFile;
-    this.webhookUrl = params.webhookUrl;
-    this.history = params.history ?? [];
-    this.company = params.company;
-    this.requestedBy = params.requestedBy;
-    this.processedBy = params.processedBy;
-    this.createdAt = params.createdAt ?? new Date();
-    this.updatedAt = params.updatedAt ?? new Date();
+  toSnake(): Record<string, any> {
+    const base = toSnake(this);
+    // unsignedFile e signedFile são objetos, converter manualmente
+    if (this.unsignedFile) {
+      base.unsigned_file = toSnake(this.unsignedFile);
+    }
+    if (this.signedFile) {
+      base.signed_file = toSnake(this.signedFile);
+    }
+    // history é array de objetos
+    if (this.history) {
+      base.history = this.history.map(h => {
+        const entry = toSnake(h);
+        if (h.error) entry.error = toSnake({
+          errorLocation: h.error.errorLocation,
+          errorMessage: h.error.errorMessage
+        });
+        return entry;
+      });
+    }
+    return base;
   }
 
-  static create(params: Omit<Request, 'createdAt' | 'updatedAt'>): Request {
-    return new Request({ ...params, createdAt: new Date(), updatedAt: new Date() });
-  }
-
-  update(data: Partial<Omit<Request, 'id' | 'profileId' | 'createdAt'>>): void {
-    if (data.status) this.status = data.status;
-    if (data.unsignedFile) this.unsignedFile = data.unsignedFile;
-    if (data.signedFile) this.signedFile = data.signedFile;
-    if (data.webhookUrl) this.webhookUrl = data.webhookUrl;
-    if (data.history) this.history = data.history;
-    if (data.company) this.company = data.company;
-    if (data.requestedBy) this.requestedBy = data.requestedBy;
-    if (data.processedBy) this.processedBy = data.processedBy;
-    this.updatedAt = new Date();
+  fromSnake(item: Record<string, any>): Request {
+    const camel = fromSnakeUtil(item);
+    Object.assign(this, camel);
+    // unsignedFile e signedFile são objetos, converter manualmente
+    this.unsignedFile = item.unsigned_file ? fromSnakeUtil(item.unsigned_file) as FileInfo : undefined;
+    this.signedFile = item.signed_file ? fromSnakeUtil(item.signed_file) as FileInfo : undefined;
+    // history é array de objetos
+    this.history = item.history ? item.history.map((h: any) => {
+      const entry = fromSnakeUtil(h) as HistoryEntry;
+      if (h.error) entry.error = fromSnakeUtil(h.error) as { errorLocation: string; errorMessage: string };
+      return entry;
+    }) : undefined;
+    return this;
   }
 }
