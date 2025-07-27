@@ -22,24 +22,26 @@ Este documento lista sugestões de branches para organizar a recriação do demo
 6. **node-workerpool** ✅ (concluído)
    - Worker pool para paralelismo e processamento assíncrono dos eventos. 100% coberto por testes unitários, todos branches e cenários validados.
 
-7. **node-observability** ✅ (concluído)
-   - Logs estruturados, métricas, tracing (OpenTelemetry, Winston, etc). Integração direta com EventBus, WorkerPool e Storage para monitoramento do chassis. 100% coberto por testes unitários, todos branches e cenários validados.
+
+8. **node-repository-service** ✅ (concluído)
+   - Adapter genérico para DynamoDB, funções de conversão configuráveis, cobertura total dos branches, testes automatizados para todos métodos principais. Experiência de dev flexível e validada.
 
 > **Fase de cobertura e correção dos módulos concluída ✔️**
 
-8. **node-signing-service**
+
+9. **node-signing-service**
    - Serviço de assinatura: integração com assinadores externos (mock/real), adapters POS.
 
-9. **node-notification-service**
-   - Serviço de notificação (webhook, status, e-mail, etc).
+10. **node-notification-service**
+    - Serviço de notificação (webhook, status, e-mail, etc).
 
-10. **node-integration-tests**
+11. **node-integration-tests**
     - Testes de integração ponta-a-ponta, mocks de infraestrutura, validação dos fluxos principais.
 
-11. **node-deployment-eks**
+12. **node-deployment-eks**
     - Scripts e configuração para deploy em EKS/Kubernetes (Helm, Docker, CI/CD).
 
-12. **node-docs-update**
+13. **node-docs-update**
     - Atualização da documentação, diagramas e exemplos para o novo projeto Node.js.
 
 ---
